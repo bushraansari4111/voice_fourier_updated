@@ -1,6 +1,7 @@
 import io
 import numpy as np
 import streamlit as st
+import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
 
@@ -210,42 +211,580 @@ with tab4:
             fig.tight_layout(); st.pyplot(fig); plt.close(fig)
 
 with tab5:
-    st.subheader('Mathematical Theory')
-    st.markdown(r'''
-### Full-Range Fourier Series
+    html_theory = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fourier Series Theory · Harmonic Analysis</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\\\(', '\\\\)'], ['$', '$']],
+        displayMath: [['\\\\[', '\\\\]'], ['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <style>
+    :root {
+      --primary: #0f4c75;
+      --primary-dark: #0a3552;
+      --primary-light: #1b6ca8;
+      --primary-soft: #e8f1f8;
+      --primary-muted: #a8c5d9;
+      --text: #1a2a3a;
+      --text-secondary: #4a5d6e;
+      --border: #d0e0ec;
+      --white: #ffffff;
+      --radius: 10px;
+      --shadow: 0 2px 12px rgba(15, 76, 117, 0.08);
+    }
 
-For a periodic signal:
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-\[
-f(t)=\frac{a_0}{2}+\sum_{n=1}^{N}[a_n\cos(n\omega_0t)+b_n\sin(n\omega_0t)]
-\]
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.65;
+      font-size: 16px;
+    }
 
-where \(\omega_0=2\pi f_0\).
+    /* Header */
+    header {
+      background: var(--primary);
+      color: var(--white);
+      padding: 1.25rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
 
-### Coefficients
+    .header-inner {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-\[
-a_0=\frac{2}{T}\int f(t)dt
-\]
-\[
-a_n=\frac{2}{T}\int f(t)\cos(n\omega_0t)dt
-\]
-\[
-b_n=\frac{2}{T}\int f(t)\sin(n\omega_0t)dt
-\]
+    .logo {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
 
-### Harmonic amplitude
+    .logo span {
+      opacity: 0.85;
+      font-weight: 400;
+      font-size: 0.9rem;
+    }
 
-\[
-A_n=\sqrt{a_n^2+b_n^2}
-\]
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-left: 1.5rem;
+      transition: opacity 0.15s;
+    }
 
-### Project flow
+    nav a:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
 
-**Signal → Fourier coefficients → Harmonic spectrum → Finite-harmonic reconstruction**
+    /* Main */
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
 
-Increasing **N** includes more harmonic components and can give a more detailed approximation of the original periodic waveform.
-''')
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      margin-bottom: 2.5rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 2.4rem 0 1rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 2px solid var(--primary-soft);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 650;
+      color: var(--primary-dark);
+      margin: 1.6rem 0 0.7rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    /* Formula blocks */
+    .formula-block {
+      background: var(--primary-soft);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1.1rem 1.4rem;
+      margin: 1.1rem 0 1.4rem;
+      overflow-x: auto;
+    }
+
+    .formula-block .MathJax {
+      font-size: 1.05em !important;
+    }
+
+    .formula-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Concept cards */
+    .concept-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.2rem 0 1.6rem;
+    }
+
+    @media (max-width: 640px) {
+      .concept-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .concept-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+      box-shadow: var(--shadow);
+    }
+
+    .concept-card h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.35rem;
+    }
+
+    .concept-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    /* Steps */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin: 1.2rem 0 1.8rem;
+      font-size: 0.92rem;
+    }
+
+    .flow-step {
+      background: var(--primary);
+      color: white;
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .flow-arrow {
+      color: var(--primary-muted);
+      font-weight: 700;
+    }
+
+    /* Note box */
+    .note {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin: 1.3rem 0;
+      font-size: 0.93rem;
+    }
+
+    .note strong {
+      color: var(--primary);
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.2rem 0 1.6rem;
+      font-size: 0.93rem;
+    }
+
+    th, td {
+      padding: 0.7rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-weight: 650;
+    }
+
+    td {
+      color: var(--text);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      background: var(--primary-soft);
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Utility */
+    .mt-0 { margin-top: 0; }
+    ul {
+      margin: 0.6rem 0 1rem 1.4rem;
+    }
+    li {
+      margin-bottom: 0.35rem;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        Fourier Theory
+        <span>· Harmonic Analysis</span>
+      </div>
+      <nav>
+        <a href="#full-range">Full-Range</a>
+        <a href="#half-range">Half-Range</a>
+        <a href="#coefficients">Coefficients</a>
+        <a href="#concepts">Concepts</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>Mathematical Theory of Fourier Series</h1>
+    <p class="subtitle">
+      Complete reference for full-range and half-range Fourier series, coefficient formulas, 
+      and the core concepts used in harmonic analysis of periodic signals.
+    </p>
+
+    <!-- Project Flow -->
+    <h2 id="flow">Project Flow</h2>
+    <div class="flow">
+      <span class="flow-step">Signal</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Fourier Coefficients</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Harmonic Spectrum</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Finite Reconstruction</span>
+    </div>
+    <p>
+      Increasing the number of harmonics \(N\) includes higher-frequency components and yields 
+      a progressively more accurate approximation of the original periodic waveform.
+    </p>
+
+    <!-- Full-Range -->
+    <h2 id="full-range">1. Full-Range Fourier Series</h2>
+    <p>
+      Any periodic function \(f(t)\) with period \(T\) (fundamental frequency \(f_0 = 1/T\)) 
+      can be expressed as an infinite sum of harmonically related sines and cosines.
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-label">Trigonometric Form</div>
+      \[
+        f(t) = \frac{a_0}{2} + \sum_{n=1}^{\infty} \Bigl[ a_n \cos(n\omega_0 t) + b_n \sin(n\omega_0 t) \Bigr]
+      \]
+      where \(\omega_0 = 2\pi f_0 = \dfrac{2\pi}{T}\).
+    </div>
+
+    <p>
+      In practical applications we truncate the sum at a finite order \(N\):
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-label">Finite Approximation</div>
+      \[
+        f_N(t) = \frac{a_0}{2} + \sum_{n=1}^{N} \Bigl[ a_n \cos(n\omega_0 t) + b_n \sin(n\omega_0 t) \Bigr]
+      \]
+    </div>
+
+    <h3>Full-Range Coefficients</h3>
+    <p>
+      The coefficients are obtained by orthogonality of the trigonometric basis over one period:
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-label">DC / Average Term</div>
+      \[
+        a_0 = \frac{2}{T} \int_{0}^{T} f(t)\, dt
+      \]
+      (sometimes written over any interval of length \(T\))
+    </div>
+
+    <div class="formula-block">
+      <div class="formula-label">Cosine Coefficients</div>
+      \[
+        a_n = \frac{2}{T} \int_{0}^{T} f(t)\cos(n\omega_0 t)\, dt \qquad n = 1,2,3,\dots
+      \]
+    </div>
+
+    <div class="formula-block">
+      <div class="formula-label">Sine Coefficients</div>
+      \[
+        b_n = \frac{2}{T} \int_{0}^{T} f(t)\sin(n\omega_0 t)\, dt \qquad n = 1,2,3,\dots
+      \]
+    </div>
+
+    <h3>Harmonic Amplitude & Phase</h3>
+    <p>
+      Each harmonic can be rewritten in amplitude-phase form:
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-label">Amplitude & Phase</div>
+      \[
+        A_n = \sqrt{a_n^2 + b_n^2}, \qquad
+        \phi_n = \tan^{-1}\!\Bigl(\frac{b_n}{a_n}\Bigr)
+      \]
+      so that
+      \[
+        a_n\cos(n\omega_0 t) + b_n\sin(n\omega_0 t) = A_n\cos(n\omega_0 t - \phi_n)
+      \]
+    </div>
+
+    <!-- Half-Range -->
+    <h2 id="half-range">2. Half-Range Fourier Series</h2>
+    <p>
+      When a function is defined only on the interval \([0, L]\), we can still expand it in a 
+      Fourier series by inventing a suitable extension to a full period. Two canonical choices exist.
+    </p>
+
+    <h3>2.1 Half-Range Cosine Series (Even Extension)</h3>
+    <p>
+      Reflect the function evenly about \(t=0\) to obtain a period-\(2L\) even function. 
+      Only cosine terms survive.
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-label">Half-Range Cosine Series</div>
+      \[
+        f(t) = \frac{a_0}{2} + \sum_{n=1}^{\infty} a_n \cos\Bigl(\frac{n\pi t}{L}\Bigr)
+      \]
+    </div>
+
+    <div class="formula-block">
+      <div class="formula-label">Coefficients</div>
+      \[
+        a_0 = \frac{2}{L}\int_{0}^{L} f(t)\,dt, \qquad
+        a_n = \frac{2}{L}\int_{0}^{L} f(t)\cos\Bigl(\frac{n\pi t}{L}\Bigr)\,dt
+      \]
+    </div>
+
+    <h3>2.2 Half-Range Sine Series (Odd Extension)</h3>
+    <p>
+      Reflect the function oddly about \(t=0\) to obtain a period-\(2L\) odd function. 
+      Only sine terms survive.
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-label">Half-Range Sine Series</div>
+      \[
+        f(t) = \sum_{n=1}^{\infty} b_n \sin\Bigl(\frac{n\pi t}{L}\Bigr)
+      \]
+    </div>
+
+    <div class="formula-block">
+      <div class="formula-label">Coefficients</div>
+      \[
+        b_n = \frac{2}{L}\int_{0}^{L} f(t)\sin\Bigl(\frac{n\pi t}{L}\Bigr)\,dt
+      \]
+    </div>
+
+    <div class="note">
+      <strong>Practical note:</strong> Half-range expansions are especially useful for solving 
+      boundary-value problems (heat equation, wave equation) where the spatial domain is a finite 
+      interval and boundary conditions dictate sine or cosine bases.
+    </div>
+
+    <!-- Comparison Table -->
+    <h2 id="coefficients">3. Coefficient Summary</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Series Type</th>
+          <th>Interval</th>
+          <th>Basis</th>
+          <th>Key Formulas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Full-Range</td>
+          <td>\([0,T]\) or \([-T/2,T/2]\)</td>
+          <td>\(1,\cos n\omega_0 t,\sin n\omega_0 t\)</td>
+          <td>\(a_0,a_n,b_n\) as above</td>
+        </tr>
+        <tr>
+          <td>Half-Range Cosine</td>
+          <td>\([0,L]\)</td>
+          <td>\(1,\cos(n\pi t/L)\)</td>
+          <td>Even extension → only \(a_n\)</td>
+        </tr>
+        <tr>
+          <td>Half-Range Sine</td>
+          <td>\([0,L]\)</td>
+          <td>\(\sin(n\pi t/L)\)</td>
+          <td>Odd extension → only \(b_n\)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Concepts Used -->
+    <h2 id="concepts">4. Core Concepts Used</h2>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <h4>Orthogonality</h4>
+        <p>
+          The set \(\{1,\cos n\omega_0 t,\sin n\omega_0 t\}\) is orthogonal on one period. 
+          This property isolates each coefficient via a simple integral.
+        </p>
+      </div>
+      <div class="concept-card">
+        <h4>Periodicity & Fundamental Frequency</h4>
+        <p>
+          \(f(t+T)=f(t)\). The fundamental angular frequency \(\omega_0=2\pi/T\) determines 
+          the spacing of all harmonics.
+        </p>
+      </div>
+      <div class="concept-card">
+        <h4>Harmonic Spectrum</h4>
+        <p>
+          Plotting \(A_n\) versus \(n f_0\) reveals the energy distribution across discrete 
+          frequency components — the signature of a periodic signal.
+        </p>
+      </div>
+      <div class="concept-card">
+        <h4>Finite Reconstruction</h4>
+        <p>
+          Truncating at order \(N\) produces a band-limited approximation. Gibbs phenomenon 
+          appears near discontinuities when \(N\) is finite.
+        </p>
+      </div>
+      <div class="concept-card">
+        <h4>Even / Odd Extensions</h4>
+        <p>
+          Choosing an even or odd periodic extension of a function defined on \([0,L]\) 
+          automatically selects a pure cosine or pure sine series.
+        </p>
+      </div>
+      <div class="concept-card">
+        <h4>Parseval’s Relation</h4>
+        <p>
+          Average power of the signal equals the sum of the powers of its harmonics:
+          \(\frac{1}{T}\int f^2 = \frac{a_0^2}{4} + \frac12\sum(a_n^2+b_n^2)\).
+        </p>
+      </div>
+    </div>
+
+    <!-- Complex Form (bonus, clean) -->
+    <h2>5. Complex Exponential Form (Equivalent)</h2>
+    <p>
+      The same series can be written compactly using complex exponentials:
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-label">Complex Form</div>
+      \[
+        f(t) = \sum_{n=-\infty}^{\infty} c_n\, e^{j n \omega_0 t}
+      \]
+      with
+      \[
+        c_n = \frac{1}{T}\int_{0}^{T} f(t)\, e^{-j n \omega_0 t}\, dt
+      \]
+    </div>
+
+    <p>
+      The relationship between the two representations is:
+    </p>
+    <div class="formula-block">
+      \[
+        c_0 = \frac{a_0}{2},\qquad
+        c_n = \frac{a_n - j b_n}{2},\qquad
+        c_{-n} = \frac{a_n + j b_n}{2}
+      \]
+    </div>
+
+    <div class="note">
+      <strong>In this project:</strong> We compute the real coefficients \(a_n\) and \(b_n\) 
+      numerically (via discrete sums approximating the integrals), form the harmonic amplitudes 
+      \(A_n=\sqrt{a_n^2+b_n^2}\), display the spectrum, and reconstruct the signal with a 
+      selectable number of harmonics.
+    </div>
+  </main>
+
+  <footer>
+    Applied Mathematics · Voice Signal Frequency Spectrum & Harmonic Extractor<br>
+    Theory reference — Full-Range & Half-Range Fourier Series
+  </footer>
+</body>
+</html>"""
+    components.html(html_theory, height=1200, scrolling=True)
 
 st.divider()
 st.caption('Applied Mathematics Thinking-I • Voice Signal Frequency Spectrum & Harmonic Extractor')
