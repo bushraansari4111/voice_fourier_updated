@@ -211,7 +211,7 @@ with tab4:
             fig.tight_layout(); st.pyplot(fig); plt.close(fig)
 
 with tab5:
-    html_theory = """<!DOCTYPE html>
+    html_theory = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -220,8 +220,8 @@ with tab5:
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['\\\\(', '\\\\)'], ['$', '$']],
-        displayMath: [['\\\\[', '\\\\]'], ['$$', '$$']],
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]'], ['$$', '$$']],
         processEscapes: true
       },
       options: {
@@ -742,7 +742,7 @@ with tab5:
       </div>
     </div>
 
-    <!-- Complex Form (bonus, clean) -->
+    <!-- Complex Form -->
     <h2>5. Complex Exponential Form (Equivalent)</h2>
     <p>
       The same series can be written compactly using complex exponentials:
